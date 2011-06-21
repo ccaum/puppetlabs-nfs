@@ -98,3 +98,4 @@ when "apply"
 when "check"
   exit IO.read( '/etc/exports' ) == contents( exports )
 end
+

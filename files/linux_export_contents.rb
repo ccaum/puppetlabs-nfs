@@ -7,14 +7,17 @@ exports = Hash.new
 class Export
   attr_accessor :name, :hosts
 
-  def initialize(params)
-    @name  = params[:name]
+  def initialize(name)
+    @name  = name
     @hosts = Hash.new
+  end 
 
-    params[:host].to_a.each do |host|
+  def add_host(params)
+      host = params[:host]
+
       #Catch any duplicate resources defined
       if @hosts.has_key? host
-        raise "ERROR: Duplicate resource found. nfs::exporthost['#{params['resource_title']}'] and nfs::exporthost['#{@hosts[host].resource_title}'] define the same host for the export #{params[:name]}"
+        raise "ERROR: Duplicate resource found. nfs::export['#{params[:resource_title]}'] and nfs::export['#{@hosts[host].resource_title}'] define the same host for the export #{params[:name]}"
       end
 
       @hosts[host] = Host.new(:name => host, 
@@ -22,8 +25,7 @@ class Export
         :subnet          => params[:subnet],
         :resource_title  => params[:resource_title]
       )
-    end 
-  end 
+  end
 
   def to_s
     "#{@name}\t" + @hosts.values.map {|host| host.to_s }.join(' ')
@@ -37,7 +39,7 @@ class Host
     @name           = params[:name]
     @parameters     = params[:host_parameters]
     @subnet         = params[:subnet]
-    @resource_title = parmas[:resource_title]
+    @resource_title = params[:resource_title]
   end 
 
   def to_s
@@ -64,10 +66,18 @@ Dir["#{ARGV[1]}/**/*.yaml"].each do |yaml|
 
   # The export might be a string, so ensure array
   resource['export'].to_a.each do |exp|
-    exports[exp] = Export.new :name => exp,
-      :parameters => resource['parameters'],
-      :subnet     => resource['subnet'],
-      :host       => resource['host']
+    unless exports.has_key? exp
+        exports[exp] = Export.new exp
+    end
+
+    #host might be an array or string, ensure array, then iterate
+    resource['host'].to_a.each do |h|
+      exports[exp].add_host :parameters => resource['parameters'],
+        :subnet         => resource['subnet'],
+        :resource_title => resource['resource_title'],
+        :host           => h
+    end
+
   end
 end
 
