@@ -50,3 +50,13 @@ nfs::export:
     parameters => ['rw','no_root_squash'],
   }
 
+
+  The export parameter can also be an array
+
+  nfs::export { 'export group a':
+    host       => ['hosta','hostb'],
+    export     => ['/exports/foo','/exports/bar'],
+    parameters => ['rw','no_root_squash'],
+  }
+
+  The above will assign hosta and hostb to both the /exports/foo and /exports/bar exports with the provided parameters
