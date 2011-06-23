@@ -22,8 +22,9 @@ class nfs::system::darwin {
 
   #Make sure the exports file is correct
   exec { 'rebuild exports':
-    command => "${nfs::config::work_directory_real}/export_contents.rb apply ${nfs::config::work_directory_real}",
-    unless  => "${nfs::config::work_directory_real}/export_contents.rb check ${nfs::config::work_directory_real}",
+    command   => "${nfs::config::work_directory_real}/export_contents.rb apply ${nfs::config::work_directory_real}",
+    unless    => "${nfs::config::work_directory_real}/export_contents.rb check ${nfs::config::work_directory_real}",
+    logoutput => true,
   }
 
   #Set our notifications

@@ -4,7 +4,7 @@ class nfs::config (
   $file_owner     = 'UNSET',
   $file_group     = 'UNSET',
   $linux_package  = 'UNSET',
-  $nfs_service    = 'UNSET'
+  $nfs_service    = 'UNSET',
   $linux_package_version = 'UNSET'
 ) {
 

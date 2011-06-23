@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+#puppet might have been installed with gems
+require 'rubygems'
+
+require 'puppet'
+require 'puppet/file_bucket/dipper'
 require 'yaml'
 
 exports = Array.new
@@ -92,6 +97,33 @@ end
 
 case ARGV[0]
 when "apply"
+  #I can't get the interface to filebucket to work so I'm shelling out
+  return_msg = `puppet filebucket backup /etc/exports`
+  if $?.exitstatus != 0 
+      Puppet::Error.new return_msg
+      exit(1)
+  end
+
+=begin
+  #Get the puppet config to get filebucket location
+  Puppet.parse_config
+
+  begin
+    if Puppet[:bucketdir]
+        client = Puppet::FileBucket::Dipper.new(:Path => Puppet[:bucketdir])
+    else
+        client = Puppet::FileBucket::Dipper.new(:Server => Puppet[:server])
+    end
+
+    #Do the backup
+    client.backup '/etc/exports'
+  rescue => detail
+    raise detail
+    puts detail.backtrace if Puppet[:trace]
+    exit(1)
+  end
+=end
+
   File.open('/etc/exports', 'w') { |f|
     f.write contents( exports )
   }
